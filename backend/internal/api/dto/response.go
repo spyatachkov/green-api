@@ -1,0 +1,11 @@
+package dto
+
+type Response struct {
+	Success bool        `json:"success"`
+	Data    interface{} `json:"data,omitempty"`
+	Error   string      `json:"error,omitempty"`
+}
+
+type ErrorResponse struct {
+	Error string `json:"error"`
+}

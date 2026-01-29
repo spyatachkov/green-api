@@ -1,0 +1,111 @@
+version: '3'
+
+vars:
+  BINARY_NAME: greenapi
+  MAIN_PATH: ./cmd/main.go
+  BUILD_DIR: ./bin
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  install:
+    desc: Install dependencies
+    cmds:
+      - go mod download
+      - go mod tidy
+      - go mod verify
+
+  run:
+    desc: Run application
+    deps: [install]
+    cmds:
+      - go run {{.MAIN_PATH}}
+
+  build:
+    desc: Build application
+    deps: [install]
+    cmds:
+      - mkdir -p {{.BUILD_DIR}}
+      - go build -o {{.BUILD_DIR}}/{{.BINARY_NAME}} {{.MAIN_PATH}}
+    sources:
+      - '**/*.go'
+      - go.mod
+      - go.sum
+    generates:
+      - '{{.BUILD_DIR}}/{{.BINARY_NAME}}'
+
+  build-prod:
+    desc: Build application for production (optimized)
+    deps: [install]
+    cmds:
+      - mkdir -p {{.BUILD_DIR}}
+      - go build -ldflags="-s -w" -o {{.BUILD_DIR}}/{{.BINARY_NAME}} {{.MAIN_PATH}}
+
+  test:
+    desc: Run tests
+    cmds:
+      - go test -v -race -coverprofile=coverage.out ./...
+
+  lint:
+    desc: Run linter (golangci-lint)
+    cmds:
+      - |
+        if ! command -v golangci-lint &> /dev/null; then
+          echo "Installing golangci-lint..."
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+        fi
+        golangci-lint run
+
+  lint-fix:
+    desc: Run linter and fix issues automatically
+    cmds:
+      - |
+        if ! command -v golangci-lint &> /dev/null; then
+          echo "Installing golangci-lint..."
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+        fi
+        golangci-lint run --fix
+
+  format:
+    desc: Format code with gofumpt
+    cmds:
+      - |
+        if ! command -v gofumpt &> /dev/null; then
+          echo "Installing gofumpt..."
+          go install mvdan.cc/gofumpt@latest
+        fi
+        gofumpt -l -w .
+
+  imports:
+    desc: Organize imports with goimports
+    cmds:
+      - |
+        if ! command -v goimports &> /dev/null; then
+          echo "Installing goimports..."
+          go install golang.org/x/tools/cmd/goimports@latest
+        fi
+        goimports -w -local github.com/spyatachkov/green-api/backend .
+
+  check:
+    desc: Run all checks (format, lint, test)
+    cmds:
+      - task: format
+      - task: imports
+      - task: lint
+      - task: test
+
+  clean:
+    desc: Clean build artifacts and cache
+    cmds:
+      - rm -rf {{.BUILD_DIR}}
+      - rm -f coverage.out coverage.html
+      - go clean -cache -testcache -modcache
+
+  deps-update:
+    desc: Update dependencies
+    cmds:
+      - go get -u ./...
+      - go mod tidy

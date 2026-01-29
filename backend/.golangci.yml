@@ -1,0 +1,128 @@
+run:
+  timeout: 5m
+  tests: true
+  skip-dirs:
+    - tmp
+    - vendor
+    - node_modules
+
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+  sort-results: true
+
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+    - gofmt
+    - goimports
+    - gocritic
+    - gosec
+    - misspell
+    - unparam
+    - unconvert
+    - whitespace
+    - gocyclo
+    - revive
+    - bodyclose
+    - noctx
+    - prealloc
+    - exportloopref
+    - sqlclosecheck
+    - rowserrcheck
+    - wastedassign
+    - goconst
+    - godot
+    - errorlint
+    - durationcheck
+    - nilerr
+    - nilnil
+    - tenv
+    - tparallel
+    - unconvert
+    - usestdlibvars
+    - contextcheck
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+
+  govet:
+    check-shadowing: true
+    enable-all: true
+
+  gocyclo:
+    min-complexity: 15
+
+  goconst:
+    min-len: 3
+    min-occurrences: 3
+
+  misspell:
+    locale: US
+
+  revive:
+    severity: warning
+    rules:
+      - name: blank-imports
+      - name: context-as-argument
+      - name: context-keys-type
+      - name: dot-imports
+      - name: error-return
+      - name: error-strings
+      - name: error-naming
+      - name: exported
+      - name: if-return
+      - name: increment-decrement
+      - name: var-naming
+      - name: var-declaration
+      - name: package-comments
+      - name: range
+      - name: receiver-naming
+      - name: time-naming
+      - name: unexported-return
+      - name: indent-error-flow
+      - name: errorf
+      - name: empty-block
+      - name: superfluous-else
+      - name: unused-parameter
+      - name: unreachable-code
+      - name: redefines-builtin-id
+
+  goimports:
+    local-prefixes: github.com/spyatachkov/green-api/backend
+
+  gosec:
+    excludes:
+      - G104
+
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+    disabled-checks:
+      - hugeParam
+      - rangeValCopy
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - errcheck
+        - gosec
+        - goconst
+
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  new: false
